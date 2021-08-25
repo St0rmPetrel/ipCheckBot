@@ -1,0 +1,30 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: "postgres"
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: "tg_bot"
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "user_history"
+    ports:
+      - "5432:5432"
+        #    volumes:
+        #      - ./create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+        #      - ./fill_tables.sql:/docker-entrypoint-initdb.d/fill_tables.sql
+        #
+        #  bot:
+        #    restart: unless-stopped
+        #    build:
+        #      context: .
+        #      dockerfile: ./Dockerfile
+        #    environment:
+        #      - DATABASE_URL=postgresql://
+        #    links:
+        #      - db
+        #    depends_on:
+        #      - db
+        #    ports:
+        #      - "3000:3000"
