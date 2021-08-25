@@ -2,9 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"os"
-	"strconv"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -22,7 +20,7 @@ func connectToDB() (*gorm.DB, error) {
 	return gorm.Open(postgres.Open(dsn), &gorm.Config{})
 }
 
-func giveUserByID(db *gorm.DB, user_id uint) (*User, error) {
+func giveUserByID(db *gorm.DB, user_id int) (*User, error) {
 	user := NewUser()
 	result := db.Where("user_id = ?", user_id).First(&user)
 	if result.Error != nil {
@@ -42,7 +40,7 @@ func giveIpInfoByIP(db *gorm.DB, ip string) (*InfoIP, error) {
 	return infoIP, err
 }
 
-func giveUserHistory(db *gorm.DB, user_id uint) ([]string, error) {
+func giveUserHistory(db *gorm.DB, user_id int) ([]string, error) {
 	var ips []string
 
 	result := db.Table("UserHistory").Where("user_id = ?", user_id).
@@ -76,21 +74,22 @@ func setDB(db *gorm.DB) error {
 	db.AutoMigrate(&User{})
 	db.AutoMigrate(&UserHistory{})
 	db.AutoMigrate(&GlobalHistory{})
-	admin_user_id, _ := strconv.Atoi(os.Getenv("ADMIN_USER_ID"))
-	_, err := giveUserByID(db, uint(admin_user_id))
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		db.Create(&User{Name: "Creator", User_id: uint(admin_user_id),
-			UserRole: "admin"})
-	} else {
-		return err
-	}
+	//admin_user_id, _ := strconv.Atoi(os.Getenv("ADMIN_USER_ID"))
+	//_, err := giveUserByID(db, admin_user_id)
+	//if errors.Is(err, gorm.ErrRecordNotFound) {
+	//	db.Create(&User{Name: "Creator", User_id: admin_user_id,
+	//		UserRole: "admin"})
+	//} else {
+	//	return err
+	//}
 	return nil
 }
 
 type User struct {
 	gorm.Model
 	Name     string
-	User_id  uint
+	User_id  int
+	Chat_id  int64
 	UserRole string
 }
 
@@ -100,7 +99,7 @@ func NewUser() *User {
 
 type UserHistory struct {
 	gorm.Model
-	User_id uint
+	User_id int
 	Ip      string
 }
 

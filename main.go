@@ -9,7 +9,13 @@ import (
 )
 
 func main() {
-	go botServe(botInit())
+	db, err := connectToDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	setDB(db)
+	bot, update := botInit()
+	go botServe(db, bot, update)
 	initBackendApi()
 	http.ListenAndServe(":3000", nil)
 }
