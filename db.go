@@ -40,6 +40,18 @@ func giveIpInfoByIP(db *gorm.DB, ip string) (*InfoIP, error) {
 	return infoIP, err
 }
 
+func giveUserHistoryByIP(db *gorm.DB,
+	ip string, user_id int) (*UserHistory, error) {
+
+	ret := NewUserHistory()
+	result := db.Where("user_id = ?", user_id).
+		Where("ip = ?", ip).First(&ret)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return ret, nil
+}
+
 func giveUserHistory(db *gorm.DB, user_id int) ([]string, error) {
 	var ips []string
 
@@ -61,7 +73,7 @@ func giveGlobalHistory(db *gorm.DB) ([]string, error) {
 	return ips, nil
 }
 
-func createGlobalHistory(db *gorm.DB, info InfoIP) error {
+func createGlobalHistory(db *gorm.DB, info *InfoIP) error {
 	b, err := json.Marshal(info)
 	if err != nil {
 		return err
@@ -74,14 +86,6 @@ func setDB(db *gorm.DB) error {
 	db.AutoMigrate(&User{})
 	db.AutoMigrate(&UserHistory{})
 	db.AutoMigrate(&GlobalHistory{})
-	//admin_user_id, _ := strconv.Atoi(os.Getenv("ADMIN_USER_ID"))
-	//_, err := giveUserByID(db, admin_user_id)
-	//if errors.Is(err, gorm.ErrRecordNotFound) {
-	//	db.Create(&User{Name: "Creator", User_id: admin_user_id,
-	//		UserRole: "admin"})
-	//} else {
-	//	return err
-	//}
 	return nil
 }
 
