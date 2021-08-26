@@ -2,8 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -55,7 +58,7 @@ func giveUserHistoryByIP(db *gorm.DB,
 func giveUserHistory(db *gorm.DB, user_id int) ([]string, error) {
 	var ips []string
 
-	result := db.Table("UserHistory").Where("user_id = ?", user_id).
+	result := db.Table("user_histories").Where("user_id = ?", user_id).
 		Select("ip").Find(&ips)
 	if result.Error != nil {
 		return nil, result.Error
@@ -66,7 +69,7 @@ func giveUserHistory(db *gorm.DB, user_id int) ([]string, error) {
 func giveGlobalHistory(db *gorm.DB) ([]string, error) {
 	var ips []string
 
-	result := db.Table("GlobalHistory").Select("ip").Find(&ips)
+	result := db.Table("global_histories").Select("ip").Find(&ips)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -80,6 +83,24 @@ func createGlobalHistory(db *gorm.DB, info *InfoIP) error {
 	}
 	db.Create(&GlobalHistory{Ip: info.Ip, Ip_info: string(b)})
 	return nil
+}
+
+func checkUser(db *gorm.DB, user *tgbotapi.User, chat_id int64) bool {
+	exist_user, err := giveUserByID(db, user.ID)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		db.Create(&User{Name: user.UserName, User_id: user.ID,
+			Chat_id: chat_id, UserRole: "user"})
+		log.WithFields(log.Fields{
+			"ChatID":   chat_id,
+			"UserID":   user.ID,
+			"UserName": user.UserName,
+		}).Info("Add a new user")
+		return false
+	} else if err != nil {
+		log.Error(err)
+		return false
+	}
+	return exist_user.UserRole == "admin"
 }
 
 func setDB(db *gorm.DB) error {
