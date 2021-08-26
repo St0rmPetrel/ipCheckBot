@@ -10,8 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func admin_send_all(db *gorm.DB, text string, user *tgbotapi.User,
-	chat_id int64) string {
+func admin_send_all(db *gorm.DB, bot *tgbotapi.BotAPI, text string,
+	user *tgbotapi.User, chat_id int64) string {
 
 	is_admin := checkUser(db, user, chat_id)
 	log.WithFields(log.Fields{
@@ -28,12 +28,27 @@ func admin_send_all(db *gorm.DB, text string, user *tgbotapi.User,
 	if !ok {
 		return "Command arguments error"
 	}
-	// send message
-	return "Message send to all users success" + msg
+	users, err := giveUsers(db)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return "No users found"
+	} else if err != nil {
+		log.Error(err)
+		return "Sorry something goes wrong, try again"
+	}
+	send_all_users(bot, msg, users)
+	return "Message send to all users success"
+}
+
+func send_all_users(bot *tgbotapi.BotAPI, msg string, users []User) {
+	for _, user := range users {
+		msg := tgbotapi.NewMessage(user.Chat_id, msg)
+		bot.Send(msg)
+	}
 }
 
 func parse_admin_send_all_cmd(text string) (string, bool) {
 	msg := strings.TrimPrefix(text, "/admin_send_all")
+	msg = strings.Trim(msg, " ")
 	if args := strings.Fields(msg); len(args) < 1 {
 		return "", false
 	}
