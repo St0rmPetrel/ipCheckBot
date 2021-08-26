@@ -76,6 +76,22 @@ func giveUserHistory(db *gorm.DB, user_id int) ([]string, error) {
 	return ips, nil
 }
 
+func giveUserHistoryRet(db *gorm.DB, user_id int) ([]InfoIP, error) {
+	ret := []InfoIP{}
+	ips, err := giveUserHistory(db, user_id)
+	if err != nil {
+		return nil, err
+	}
+	for _, ip := range ips {
+		info, err_info := giveIpInfoByIP(db, ip)
+		if err_info != nil {
+			continue
+		}
+		ret = append(ret, *info)
+	}
+	return ret, nil
+}
+
 func giveGlobalHistory(db *gorm.DB) ([]string, error) {
 	var ips []string
 
