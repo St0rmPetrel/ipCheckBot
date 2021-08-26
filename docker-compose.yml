@@ -16,7 +16,7 @@ services:
       timeout: 5s
       retries: 5
 
-  bot:
+  app:
     build:
       context: .
       dockerfile: ./Dockerfile

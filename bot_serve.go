@@ -25,6 +25,9 @@ func botServe(db *gorm.DB, bot *tgbotapi.BotAPI,
 			case "help":
 				msg.Text = help(db, update.Message.Text,
 					update.Message.From, update.Message.Chat.ID)
+			case "start":
+				msg.Text = help(db, update.Message.Text,
+					update.Message.From, update.Message.Chat.ID)
 			case "ip":
 				msg.Text = ip(db, update.Message.Text,
 					update.Message.From, update.Message.Chat.ID)
