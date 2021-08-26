@@ -31,6 +31,18 @@ func botServe(db *gorm.DB, bot *tgbotapi.BotAPI,
 			case "history":
 				msg.Text = history(db, update.Message.Text,
 					update.Message.From, update.Message.Chat.ID)
+			case "admin_send_all":
+				msg.Text = admin_send_all(db, update.Message.Text,
+					update.Message.From, update.Message.Chat.ID)
+			case "admin_new":
+				msg.Text = admin_new(db, update.Message.Text,
+					update.Message.From, update.Message.Chat.ID)
+			case "admin_delete":
+				msg.Text = admin_delete(db, update.Message.Text,
+					update.Message.From, update.Message.Chat.ID)
+			case "admin_user_history":
+				msg.Text = admin_user_history(db, update.Message.Text,
+					update.Message.From, update.Message.Chat.ID)
 			default:
 				msg.Text = unknown(db, update.Message.Text,
 					update.Message.From, update.Message.Chat.ID)

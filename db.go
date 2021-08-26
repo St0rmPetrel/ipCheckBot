@@ -32,6 +32,16 @@ func giveUserByID(db *gorm.DB, user_id int) (*User, error) {
 	return user, nil
 }
 
+func giveUsers(db *gorm.DB) ([]User, error) {
+	var users []User
+
+	result := db.Find(&users)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return users, nil
+}
+
 func giveIpInfoByIP(db *gorm.DB, ip string) (*InfoIP, error) {
 	history := NewGlobalHistory()
 	result := db.Where("ip = ?", ip).First(&history)

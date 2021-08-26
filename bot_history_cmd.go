@@ -30,11 +30,11 @@ func history(db *gorm.DB, text string, user *tgbotapi.User,
 		log.Error(err)
 		return "Sorry something goes wrong, try again"
 	}
-	return userHistory_pp(ip_req_list, user)
+	return userHistory_pp(ip_req_list, user.UserName)
 }
 
-func userHistory_pp(ip_list []string, user *tgbotapi.User) string {
-	str := "History of user: " + user.UserName + "\n"
+func userHistory_pp(ip_list []string, user_name string) string {
+	str := "History of user: " + user_name + "\n"
 	if len(ip_list) < 1 {
 		str += "Empty"
 		return str
@@ -42,7 +42,7 @@ func userHistory_pp(ip_list []string, user *tgbotapi.User) string {
 	for _, ip := range ip_list {
 		str += ip + "\n"
 	}
-	return str
+	return str + "\n"
 }
 
 func parse_history_cmd(text string) bool {
@@ -51,4 +51,17 @@ func parse_history_cmd(text string) bool {
 		return false
 	}
 	return true
+}
+
+func history_all_users(db *gorm.DB, users []User) string {
+	ret := ""
+	for _, user := range users {
+		ip_req_list, err := giveUserHistory(db, user.User_id)
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Error(err)
+			continue
+		}
+		ret += userHistory_pp(ip_req_list, user.Name)
+	}
+	return ret
 }
