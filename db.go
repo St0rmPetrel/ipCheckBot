@@ -12,7 +12,7 @@ import (
 )
 
 func connectToDB() (*gorm.DB, error) {
-	dsn := "host=localhost" +
+	dsn := "host=" + os.Getenv("POSTGRES_HOST") +
 		" user=" + os.Getenv("POSTGRES_USER") +
 		" password=" + os.Getenv("POSTGRES_PASSWORD") +
 		" dbname=" + os.Getenv("POSTGRES_DB") +
