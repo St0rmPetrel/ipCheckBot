@@ -65,6 +65,16 @@ func giveUserHistoryByIP(db *gorm.DB,
 	return ret, nil
 }
 
+func giveUserHistoryByID(db *gorm.DB, id int) (*UserHistory, error) {
+
+	ret := NewUserHistory()
+	result := db.First(&ret, id)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return ret, nil
+}
+
 func giveUserHistory(db *gorm.DB, user_id int) ([]string, error) {
 	var ips []string
 
@@ -92,14 +102,14 @@ func giveUserHistoryRet(db *gorm.DB, user_id int) ([]InfoIP, error) {
 	return ret, nil
 }
 
-func giveGlobalHistory(db *gorm.DB) ([]string, error) {
-	var ips []string
+func giveGlobalUserHistory(db *gorm.DB) ([]UserHistory, error) {
+	var ret []UserHistory
 
-	result := db.Table("global_histories").Select("ip").Find(&ips)
+	result := db.Find(&ret)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return ips, nil
+	return ret, nil
 }
 
 func createGlobalHistory(db *gorm.DB, info *InfoIP) error {
